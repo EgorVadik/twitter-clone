@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model Tweet {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    content   String
+    img       String
+    createdAt DateTime @default(now())
+    author    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String   @db.ObjectId
+    replies   Reply[]
+    likes     Like[]
+}
+
+model Like {
+    id      String @id @default(auto()) @map("_id") @db.ObjectId
+    userId  String @db.ObjectId
+    tweetId String @db.ObjectId
+    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    tweet   Tweet  @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+}
+
+model Reply {
+    id      String @id @default(auto()) @map("_id") @db.ObjectId
+    content String
+    userId  String @db.ObjectId
+    tweetId String @db.ObjectId
+    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    tweet   Tweet  @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id            String    @id @default(auto()) @map("_id") @db.ObjectId
+    name          String?   @unique
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+    hash          String
+
+    tweets        Tweet[]
+    likes         Like[]
+    followedBy    User[]   @relation("UserFollows", fields: [followedByIDs], references: [id])
+    followedByIDs String[] @db.ObjectId
+    following     User[]   @relation("UserFollows", fields: [followingIDs], references: [id])
+    followingIDs  String[] @db.ObjectId
+    replies       Reply[]
+}
+
+model Session {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    sessionToken String   @unique
+    userId       String   @db.ObjectId
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+    id                String  @id @default(auto()) @map("_id") @db.ObjectId
+    userId            String  @db.ObjectId
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
