@@ -1,10 +1,14 @@
-import ExploreBar from '@/components/ExploreBar'
+import Redirect from '@/components/Redirect'
 import TweetCard from '@/components/TweetCard'
 import { getServerAuthSession } from '@/server/auth'
 import { prisma } from '@/server/db'
 import Link from 'next/link'
 
-export default async function Home() {
+export default async function page() {
+    const session = await getServerAuthSession()
+    if (!session) {
+        return <Redirect redirectTo='/' />
+    }
     const allTweets = await prisma.tweet.findMany({
         orderBy: {
             createdAt: 'desc',
@@ -20,11 +24,8 @@ export default async function Home() {
         },
     })
 
-    const session = await getServerAuthSession()
-
     return (
         <>
-            <ExploreBar session={session} />
             <div
                 className={`md:w-[600px] w-full ${
                     session !== null ? 'pt-[108px]' : 'pt-[50px]'

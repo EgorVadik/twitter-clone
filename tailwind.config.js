@@ -17,6 +17,12 @@ module.exports = {
                 'modal-bg': 'rgba(91, 112, 131, 0.4)',
                 'reply-hover': 'rgb(29, 155, 240)',
                 'like-hover': 'rgb(249, 24, 128)',
+                'tweet-img-hover': 'rgba(29, 155, 240, 0.1)',
+                'tweet-hover': 'rgba(255, 255, 255, 0.03)',
+            },
+            boxShadow: {
+                'pfp-dialog':
+                    'rgba(255, 255, 255, 0.2) 0px 0px 15px, rgba(255, 255, 255, 0.15) 0px 0px 3px 1px',
             },
         },
     },

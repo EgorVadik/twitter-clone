@@ -3,6 +3,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import Provider from '@/context/Provider'
 import { getServerSession } from 'next-auth'
+import { authOptions, getServerAuthSession } from '@/server/auth'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
@@ -15,12 +16,15 @@ export default async function RootLayout({
 }: {
     children: React.ReactNode
 }) {
-    const session = await getServerSession()
+    const session = await getServerAuthSession()
+    // const session = await getServerSession(authOptions)
     return (
         <html lang='en'>
             <body>
                 <Provider>
-                    <main className={`${inter.className} flex md:mx-28 mx-5`}>
+                    <main
+                        className={`${inter.className} flex md:mx-14 lg:mx-10 mx-5`}
+                    >
                         <div className='grow relative'>
                             <SideBar session={session} />
                         </div>

@@ -1,12 +1,55 @@
 import TweetCard from '@/components/TweetCard'
+import { prisma } from '@/server/db'
+import Link from 'next/link'
 
-function page() {
+interface Params {
+    id: string
+}
+
+async function page({ params }: { params: Params }) {
+    const replies = await prisma.tweet.findMany({
+        where: {
+            userId: params.id,
+            likes: {
+                some: {
+                    userId: params.id,
+                },
+            },
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+        include: {
+            author: true,
+            _count: {
+                select: {
+                    likes: true,
+                    replies: true,
+                },
+            },
+        },
+    })
+
     return (
-        <>
-            <TweetCard />
-            <TweetCard />
-            <TweetCard />
-        </>
+        <div
+            className={`md:w-[600px] w-full $
+    `}
+        >
+            {replies.map((tweet) => (
+                <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
+                    <TweetCard
+                        tweetId={tweet.id}
+                        content={tweet.content}
+                        likes={tweet._count.likes}
+                        createdAt={tweet.createdAt}
+                        replies={tweet._count.replies}
+                        userName={tweet.author.name!}
+                        contentImg={tweet.img}
+                        userImg={tweet.author.image}
+                    />
+                </Link>
+            ))}
+        </div>
     )
 }
 

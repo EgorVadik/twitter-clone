@@ -8,6 +8,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from '@/server/db'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare } from 'bcrypt'
+import { AdapterUser } from 'next-auth/adapters'
 
 declare module 'next-auth' {
     interface Session extends DefaultSession {
@@ -19,13 +20,27 @@ declare module 'next-auth' {
 
 export const authOptions: NextAuthOptions = {
     callbacks: {
-        session: ({ session, user }) => ({
-            ...session,
-            user: {
-                ...session.user,
-                id: user.id,
-            },
-        }),
+        async jwt({ token, user }) {
+            if (user) {
+                token.user = user
+            }
+            return token
+        },
+        async session({ session, token }) {
+            const id = (token.user as AdapterUser).id
+
+            return {
+                ...session,
+                user: {
+                    ...session.user,
+                    id,
+                },
+            }
+        },
+    },
+    session: {
+        strategy: 'jwt',
+        maxAge: 30 * 24 * 60 * 60,
     },
     adapter: PrismaAdapter(prisma),
     providers: [
@@ -56,16 +71,15 @@ export const authOptions: NextAuthOptions = {
                 return null
             },
         }),
-        // DiscordProvider({
-        //     clientId: process.env.DISCORD_CLIENT_ID!,
-        //     clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-        // }),
     ],
 }
 
-export const getServerAuthSession = (ctx: {
+export const getServerAuthSession = async (ctx?: {
     req: GetServerSidePropsContext['req']
     res: GetServerSidePropsContext['res']
 }) => {
-    return getServerSession(ctx.req, ctx.res, authOptions)
+    if (ctx) {
+        return await getServerSession(ctx.req, ctx.res, authOptions)
+    }
+    return await getServerSession(authOptions)
 }

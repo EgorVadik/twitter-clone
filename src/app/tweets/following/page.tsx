@@ -1,11 +1,31 @@
-import ExploreBar from '@/components/ExploreBar'
+import Redirect from '@/components/Redirect'
 import TweetCard from '@/components/TweetCard'
 import { getServerAuthSession } from '@/server/auth'
 import { prisma } from '@/server/db'
 import Link from 'next/link'
+import Router from 'next/navigation'
 
-export default async function Home() {
-    const allTweets = await prisma.tweet.findMany({
+export default async function page() {
+    const session = await getServerAuthSession()
+    if (!session) {
+        return <Redirect redirectTo='/' />
+    }
+
+    const followedUsers = await prisma.user.findUnique({
+        where: {
+            id: session.user.id,
+        },
+        select: {
+            followingIDs: true,
+        },
+    })
+
+    const followingTweets = await prisma.tweet.findMany({
+        where: {
+            userId: {
+                in: followedUsers?.followingIDs,
+            },
+        },
         orderBy: {
             createdAt: 'desc',
         },
@@ -20,17 +40,14 @@ export default async function Home() {
         },
     })
 
-    const session = await getServerAuthSession()
-
     return (
         <>
-            <ExploreBar session={session} />
             <div
                 className={`md:w-[600px] w-full ${
                     session !== null ? 'pt-[108px]' : 'pt-[50px]'
                 }`}
             >
-                {allTweets.map((tweet) => (
+                {followingTweets.map((tweet) => (
                     <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
                         <TweetCard
                             tweetId={tweet.id}

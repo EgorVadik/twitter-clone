@@ -7,7 +7,7 @@ type props = {
 
 function ProfileInfo({ username, joinedAt, followers, following }: props) {
     return (
-        <div>
+        <div className='px-5'>
             <p className='text-lg font-bold mb-4'>{username}</p>
             <p className='text-[#666a6f]'>Joined {joinedAt}</p>
             <div className='flex text-[#666a6f] gap-4 mt-2'>
