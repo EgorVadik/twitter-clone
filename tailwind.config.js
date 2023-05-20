@@ -19,6 +19,11 @@ module.exports = {
                 'like-hover': 'rgb(249, 24, 128)',
                 'tweet-img-hover': 'rgba(29, 155, 240, 0.1)',
                 'tweet-hover': 'rgba(255, 255, 255, 0.03)',
+                'unfollow-text': 'rgb(244, 33, 46)',
+                'unfollow-bg': 'rgba(244, 33, 46, 0.1)',
+                'unfollow-border': 'rgb(107, 7, 15)',
+                'user-card-hover': 'rgb(22, 24, 28)',
+                'add-img-hover': 'rgba(39, 44, 48, 0.75)',
             },
             boxShadow: {
                 'pfp-dialog':

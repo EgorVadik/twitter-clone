@@ -17,7 +17,6 @@ export default async function RootLayout({
     children: React.ReactNode
 }) {
     const session = await getServerAuthSession()
-    // const session = await getServerSession(authOptions)
     return (
         <html lang='en'>
             <body>
@@ -25,7 +24,7 @@ export default async function RootLayout({
                     <main
                         className={`${inter.className} flex md:mx-14 lg:mx-10 mx-5`}
                     >
-                        <div className='grow relative'>
+                        <div className='md:grow relative'>
                             <SideBar session={session} />
                         </div>
                         <div className='m-auto grow'>{children}</div>

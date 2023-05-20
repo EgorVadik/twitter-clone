@@ -1,17 +1,35 @@
 import { defaultPfp } from '@/utils/constants'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { FormEvent, RefObject, useEffect, useRef, useState } from 'react'
 type props = {
     isOpened: boolean
     handleClose: () => void
-    userImg?: string | null
+    userName: string
+    tweetId: string
+    replyToUserImg: string | null
+    replyToContent: string
+    createdAt: string
 }
-function NewTweetModal({ handleClose, isOpened, userImg }: props) {
+function ReplyModal({
+    handleClose,
+    isOpened,
+    userName,
+    tweetId,
+    replyToUserImg,
+    replyToContent,
+    createdAt,
+}: props) {
     const router = useRouter()
     const modalRef = useRef<HTMLDialogElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const [content, setContent] = useState('')
+    const { data, status } = useSession()
+
+    if (status == 'unauthenticated') {
+        handleClose()
+    }
 
     useEffect(() => {
         if (isOpened) {
@@ -27,12 +45,13 @@ function NewTweetModal({ handleClose, isOpened, userImg }: props) {
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault()
-        const res = await fetch('/api/new-tweet', {
+
+        const res = await fetch('/api/tweet/reply', {
             headers: {
                 'Content-Type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({ tweetId, content }),
         })
 
         if (res.ok) {
@@ -60,14 +79,35 @@ function NewTweetModal({ handleClose, isOpened, userImg }: props) {
             ref={modalRef}
             className={`backdrop:bg-modal-bg md:w-[600px] bg-black rounded-xl text-white pt-14 ${
                 !isOpened && 'hidden'
-            }`}
+            } cursor-default`}
         >
             <button
-                onClick={() => handleClose()}
+                onClick={(e) => {
+                    e.preventDefault()
+                    handleClose()
+                }}
                 className='absolute top-2 left-5 text-2xl'
             >
                 x
             </button>
+
+            <div className='flex gap-5 items-start w-full mb-7'>
+                <Image
+                    src={replyToUserImg || defaultPfp}
+                    alt='Profile Image'
+                    width={48}
+                    height={48}
+                />
+                <div>
+                    <p>
+                        {userName}{' '}
+                        <span className='text-sm font-normal text-[#71767b]'>
+                            {createdAt}
+                        </span>
+                    </p>
+                    <p>{replyToContent}</p>
+                </div>
+            </div>
 
             <form
                 onSubmit={handleSubmit}
@@ -75,7 +115,7 @@ function NewTweetModal({ handleClose, isOpened, userImg }: props) {
             >
                 <div className='flex gap-5 items-start w-full'>
                     <Image
-                        src={userImg || defaultPfp}
+                        src={data?.user.image || defaultPfp}
                         alt='Profile Image'
                         width={48}
                         height={48}
@@ -83,27 +123,14 @@ function NewTweetModal({ handleClose, isOpened, userImg }: props) {
                     <textarea
                         ref={textareaRef}
                         rows={5}
-                        className='resize-none bg-transparent text-xl w-full focus:outline-none'
-                        placeholder='What is happening?!'
+                        className='resize-none bg-transparent text-xl w-full focus:outline-none pt-3'
+                        placeholder='Tweet your reply!'
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         required
                     ></textarea>
                 </div>
-                <hr className='border-[#2f3336] w-full' />
-                <div className='flex items-center justify-between w-full'>
-                    <label
-                        htmlFor='img'
-                        className='rounded-full p-2 hover:bg-tweet-img-hover cursor-pointer'
-                    >
-                        <input type='file' id='img' className='hidden' />
-                        <Image
-                            src={'/image.svg'}
-                            alt='Image'
-                            width={24}
-                            height={24}
-                        />
-                    </label>
+                <div className='flex items-center justify-end w-full'>
                     <div className='flex items-center gap-3'>
                         <p>
                             <span
@@ -116,13 +143,14 @@ function NewTweetModal({ handleClose, isOpened, userImg }: props) {
                             /280
                         </p>
                         <button
+                            type='submit'
                             disabled={
                                 content.trim().length === 0 ||
                                 content.trim().length > 280
                             }
                             className={`disabled:bg-[#0e4e78] disabled:cursor-not-allowed disabled:text-[#808080] font-bold bg-[#1d9bf0] rounded-full px-4 py-2`}
                         >
-                            Tweet
+                            Reply
                         </button>
                     </div>
                 </div>
@@ -131,4 +159,4 @@ function NewTweetModal({ handleClose, isOpened, userImg }: props) {
     )
 }
 
-export default NewTweetModal
+export default ReplyModal

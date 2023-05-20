@@ -3,7 +3,6 @@ import TweetCard from '@/components/TweetCard'
 import { getServerAuthSession } from '@/server/auth'
 import { prisma } from '@/server/db'
 import Link from 'next/link'
-import Router from 'next/navigation'
 
 export default async function page() {
     const session = await getServerAuthSession()
@@ -48,18 +47,20 @@ export default async function page() {
                 }`}
             >
                 {followingTweets.map((tweet) => (
-                    <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
-                        <TweetCard
-                            tweetId={tweet.id}
-                            content={tweet.content}
-                            likes={tweet._count.likes}
-                            createdAt={tweet.createdAt}
-                            replies={tweet._count.replies}
-                            userName={tweet.author.name!}
-                            contentImg={tweet.img}
-                            userImg={tweet.author.image}
-                        />
-                    </Link>
+                    // <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
+                    <TweetCard
+                        key={tweet.id}
+                        userId={tweet.author.id}
+                        tweetId={tweet.id}
+                        content={tweet.content}
+                        likes={tweet._count.likes}
+                        createdAt={tweet.createdAt}
+                        replies={tweet._count.replies}
+                        userName={tweet.author.name!}
+                        contentImg={tweet.img}
+                        userImg={tweet.author.image}
+                    />
+                    // </Link>
                 ))}
             </div>
         </>

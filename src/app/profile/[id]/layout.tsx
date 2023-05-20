@@ -33,6 +33,7 @@ export default async function Layout({
             image: true,
             bannerImg: true,
             createdAt: true,
+            following: true,
         },
     })
 
@@ -48,7 +49,6 @@ export default async function Layout({
                     tweetCount={user._count.tweets}
                     imgUrl={user.bannerImg}
                 />
-                {/* md:-bottom-36 -bottom-7 left-5 md:w-fit w-24 */}
                 <div className='bg-black p-1 rounded-full relative w-fit left-4 -top-5'>
                     <Image
                         src={user?.image || defaultPfp}
@@ -58,15 +58,13 @@ export default async function Layout({
                         height={150}
                     />
                 </div>
-                <div className='absolute bottom-16 right-5'>
-                    <ProfileBtn session={session} />
-                </div>
+                <ProfileBtn session={session} profileId={params.id} />
             </div>
             <ProfileInfo
                 username={user.name!}
                 joinedAt={moment(user.createdAt).format('MMMM YYYY')}
                 followers={user._count.followedBy}
-                following={user._count.following}
+                following={user.following.length}
             />
             <ProfileNavBtns id={params.id} />
             {children}

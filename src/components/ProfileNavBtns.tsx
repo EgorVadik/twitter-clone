@@ -14,12 +14,6 @@ function ProfileNavBtns({ id }: props) {
                 Tweets
             </Link>
             <Link
-                href={`/profile/${id}/replies`}
-                className='grow hover:bg-btn-hover-profile py-4 text-center border-b border-[#2f3336]'
-            >
-                Replies
-            </Link>
-            <Link
                 href={`/profile/${id}/likes`}
                 className='grow hover:bg-btn-hover-profile py-4 text-center border-b border-[#2f3336]'
             >

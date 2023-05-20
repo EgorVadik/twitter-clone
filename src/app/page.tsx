@@ -31,18 +31,20 @@ export default async function Home() {
                 }`}
             >
                 {allTweets.map((tweet) => (
-                    <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
-                        <TweetCard
-                            tweetId={tweet.id}
-                            content={tweet.content}
-                            likes={tweet._count.likes}
-                            createdAt={tweet.createdAt}
-                            replies={tweet._count.replies}
-                            userName={tweet.author.name!}
-                            contentImg={tweet.img}
-                            userImg={tweet.author.image}
-                        />
-                    </Link>
+                    // <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
+                    <TweetCard
+                        key={tweet.id}
+                        userId={tweet.author.id}
+                        tweetId={tweet.id}
+                        content={tweet.content}
+                        likes={tweet._count.likes}
+                        createdAt={tweet.createdAt}
+                        replies={tweet._count.replies}
+                        userName={tweet.author.name!}
+                        contentImg={tweet.img}
+                        userImg={tweet.author.image}
+                    />
+                    // </Link>
                 ))}
             </div>
         </>
