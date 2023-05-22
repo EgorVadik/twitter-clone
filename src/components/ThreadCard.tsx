@@ -1,9 +1,7 @@
-// 'use client'
 import { defaultPfp } from '@/utils/constants'
 import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
-// import { useRouter } from 'next/navigation'
 
 type props = {
     count: {
@@ -22,8 +20,6 @@ type props = {
 }
 
 function ThreadCard({ author, content, count, createdAt, img }: props) {
-    // const router = useRouter()
-
     return (
         <div className='grid p-3 border-t-0 border border-[#2f3336]'>
             <Link
@@ -32,11 +28,11 @@ function ThreadCard({ author, content, count, createdAt, img }: props) {
             >
                 <Image
                     src={author.image || defaultPfp}
-                    className='rounded-full'
+                    className='rounded-full w-[48px] h-[48px] object-cover'
                     alt={author.name!}
                     width={48}
                     height={48}
-                    // onClick={() => router.push(`/profile/${author.id}`)}
+                    sizes='100%'
                 />
                 <div>
                     <p className='font-bold'>{author.name!}</p>

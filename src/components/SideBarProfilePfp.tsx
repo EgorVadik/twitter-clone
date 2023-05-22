@@ -15,6 +15,8 @@ function SideBarProfilePfp({ imgUrl, name, email }: props) {
                 alt={name}
                 width={40}
                 height={40}
+                className='rounded-full w-[40px] h-[40px] object-cover'
+                sizes='100%'
             />
             <div className='text-base hidden lg:block text-start'>
                 <p className='font-bold'>{email}</p>

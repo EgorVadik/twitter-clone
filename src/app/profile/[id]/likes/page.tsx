@@ -1,6 +1,5 @@
 import TweetCard from '@/components/TweetCard'
 import { prisma } from '@/server/db'
-import Link from 'next/link'
 
 interface Params {
     id: string
@@ -41,7 +40,6 @@ async function page({ params }: { params: Params }) {
     return (
         <div className={`md:w-[600px] w-full`}>
             {likes.map((tweet) => (
-                // <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
                 <TweetCard
                     key={tweet.id}
                     userId={tweet.author.id}
@@ -54,7 +52,6 @@ async function page({ params }: { params: Params }) {
                     contentImg={tweet.img}
                     userImg={tweet.author.image}
                 />
-                // </Link>
             ))}
         </div>
     )

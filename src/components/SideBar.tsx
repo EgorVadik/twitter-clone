@@ -103,10 +103,11 @@ function SideBar({ session }: props) {
                                 <SideBarProfileDialog
                                     handleClose={handlePfpClose}
                                     isOpened={isPfpOpened}
+                                    email={session.user.email!}
                                 />
                                 <button
                                     className='flex items-center gap-3'
-                                    onClick={() => setIsPfpOpened(true)}
+                                    onClick={() => setIsPfpOpened(!isPfpOpened)}
                                 >
                                     <SideBarProfilePfp
                                         email={session.user.email!}
@@ -146,7 +147,7 @@ function SideBar({ session }: props) {
                                     onClick={() => setIsSignupOpened(true)}
                                     className='flex items-center gap-3'
                                 >
-                                    {icon('/login.svg', 'Sign up')}
+                                    {icon('/create-acc.svg', 'Sign up')}
                                     <p className='hidden lg:block'>Sign up</p>
                                 </button>
                             </li>

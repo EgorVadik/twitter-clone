@@ -52,7 +52,7 @@ export default async function Layout({
                 <div className='bg-black p-1 rounded-full relative w-fit left-4 -top-5'>
                     <Image
                         src={user?.image || defaultPfp}
-                        className='rounded-full'
+                        className='rounded-full w-[150px] h-[150px] object-cover'
                         alt='pfp'
                         width={150}
                         height={150}

@@ -19,7 +19,7 @@ function ExploreBar({ session }: props) {
     }
 
     return (
-        <div className='flex items-center py-3 border-[#2f3336] border-x px-4 gap-10 fixed z-20 bg-black/65 md:w-[600px] w-full backdrop-sepia backdrop-blur-md'>
+        <div className='flex items-center py-3 border-[#2f3336] border-x px-4 gap-10 fixed z-20 bg-black/65 md:w-[600px] w-[85%] backdrop-sepia backdrop-blur-md'>
             <div className='w-full'>
                 <Link href={'/'} className='text-xl font-bold'>
                     Home

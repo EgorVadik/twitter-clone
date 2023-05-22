@@ -5,21 +5,13 @@ import Link from 'next/link'
 
 type props = {
     userId: string
-    // tweetId: string
     userName: string
     userImg: string | null
     content: string
     createdAt: Date
 }
 
-function ReplyCard({
-    userId,
-    // tweetId,
-    content,
-    createdAt,
-    userName,
-    userImg,
-}: props) {
+function ReplyCard({ userId, content, createdAt, userName, userImg }: props) {
     return (
         <>
             <div className='hover:bg-tweet-hover grid p-3 border-t-0 border border-[#2f3336]'>
@@ -29,10 +21,11 @@ function ReplyCard({
                 >
                     <Image
                         src={userImg || defaultPfp}
-                        className='rounded-full'
+                        className='rounded-full w-[48px] h-[48px] object-cover'
                         alt={userName}
                         width={48}
                         height={48}
+                        sizes='100%'
                     />
                     <div>
                         <p className='font-bold'>

@@ -16,7 +16,7 @@ function ProfileBanner({ imgUrl, name, tweetCount }: props) {
                     <Image
                         src={imgUrl}
                         alt='media'
-                        className='w-full h-auto object-contain'
+                        className='w-full h-[200px] object-fill'
                         width='0'
                         height='0'
                         sizes='100%'

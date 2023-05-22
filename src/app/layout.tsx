@@ -2,8 +2,7 @@ import SideBar from '@/components/SideBar'
 import './globals.css'
 import { Inter } from 'next/font/google'
 import Provider from '@/context/Provider'
-import { getServerSession } from 'next-auth'
-import { authOptions, getServerAuthSession } from '@/server/auth'
+import { getServerAuthSession } from '@/server/auth'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {

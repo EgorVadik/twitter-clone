@@ -2,7 +2,6 @@ import ExploreBar from '@/components/ExploreBar'
 import TweetCard from '@/components/TweetCard'
 import { getServerAuthSession } from '@/server/auth'
 import { prisma } from '@/server/db'
-import Link from 'next/link'
 
 export default async function Home() {
     const allTweets = await prisma.tweet.findMany({
@@ -31,7 +30,6 @@ export default async function Home() {
                 }`}
             >
                 {allTweets.map((tweet) => (
-                    // <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
                     <TweetCard
                         key={tweet.id}
                         userId={tweet.author.id}
@@ -44,7 +42,6 @@ export default async function Home() {
                         contentImg={tweet.img}
                         userImg={tweet.author.image}
                     />
-                    // </Link>
                 ))}
             </div>
         </>

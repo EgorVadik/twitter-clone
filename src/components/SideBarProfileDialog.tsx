@@ -4,9 +4,10 @@ import { useEffect, useRef } from 'react'
 type props = {
     isOpened: boolean
     handleClose: () => void
+    email: string
 }
 
-function SideBarProfileDialog({ isOpened, handleClose }: props) {
+function SideBarProfileDialog({ isOpened, handleClose, email }: props) {
     const modalRef = useRef<HTMLDialogElement>(null)
 
     useEffect(() => {
@@ -20,7 +21,7 @@ function SideBarProfileDialog({ isOpened, handleClose }: props) {
     return (
         <dialog
             ref={modalRef}
-            className={`w-[200px] shadow-pfp-dialog bg-black rounded-xl text-white -top-20 ${
+            className={`w-[200px] shadow-pfp-dialog bg-black rounded-xl text-white -top-28 ${
                 !isOpened && 'hidden '
             }`}
         >
@@ -30,6 +31,7 @@ function SideBarProfileDialog({ isOpened, handleClose }: props) {
             >
                 x
             </button>
+            <p className='text-center mt-1'>{email}</p>
             <button
                 className='text-center w-full'
                 onClick={async () => await signOut()}

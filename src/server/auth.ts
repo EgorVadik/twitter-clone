@@ -27,6 +27,10 @@ export const authOptions: NextAuthOptions = {
                 token.user.name = session.user.name
                 // @ts-ignore
                 token.user.email = session.user.email
+                // @ts-ignore
+                token.user.image = session.user.image
+                // @ts-ignore
+                token.user.bannerImg = session.user.bannerImg
             }
 
             if (user) {
@@ -43,6 +47,8 @@ export const authOptions: NextAuthOptions = {
             session.user.name = token.user.name
             // @ts-ignore
             session.user.email = token.user.email
+            // @ts-ignore
+            session.user.image = token.user.image
 
             return {
                 ...session,

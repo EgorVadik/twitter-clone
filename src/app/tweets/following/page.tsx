@@ -2,7 +2,6 @@ import Redirect from '@/components/Redirect'
 import TweetCard from '@/components/TweetCard'
 import { getServerAuthSession } from '@/server/auth'
 import { prisma } from '@/server/db'
-import Link from 'next/link'
 
 export default async function page() {
     const session = await getServerAuthSession()
@@ -47,7 +46,6 @@ export default async function page() {
                 }`}
             >
                 {followingTweets.map((tweet) => (
-                    // <Link key={tweet.id} href={`/tweet/${tweet.id}`}>
                     <TweetCard
                         key={tweet.id}
                         userId={tweet.author.id}
@@ -60,7 +58,6 @@ export default async function page() {
                         contentImg={tweet.img}
                         userImg={tweet.author.image}
                     />
-                    // </Link>
                 ))}
             </div>
         </>

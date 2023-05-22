@@ -29,6 +29,9 @@ async function page({ params }: any) {
                 },
             },
             replies: {
+                orderBy: {
+                    createdAt: 'desc',
+                },
                 select: {
                     id: true,
                     content: true,

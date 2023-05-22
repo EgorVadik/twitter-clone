@@ -4,7 +4,10 @@ import { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { FormEvent, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
+import AddImgBtn from './AddImgBtn'
+import InputField from './InputField'
+import { addBanner, addPfp } from '@/server/firebase'
 
 type props = {
     handleClose: () => void
@@ -25,6 +28,11 @@ function EditProfileModal({ handleClose, isOpened, session }: props) {
     const [email, setEmail] = useState(session?.user.email)
     const [oldPass, setOldPass] = useState('')
     const [newPass, setNewPass] = useState<string | null>(null)
+
+    const [imgFile, setImgFile] = useState<File | null>(null)
+    const [bannerImgFile, setBannerImgFile] = useState<File | null>(null)
+    const [img, setImg] = useState<string | null>(null)
+    const [bannerImg, setBannerImg] = useState<string | null>(null)
 
     const [emailErr, setEmailErr] = useState('')
     const [nameErr, setNameErr] = useState('')
@@ -54,12 +62,39 @@ function EditProfileModal({ handleClose, isOpened, session }: props) {
     async function handleSubmit(e: FormEvent) {
         e.preventDefault()
 
+        if (!session) return
+
         if (!validateEmail(email!)) return
-        console.log(newPass)
 
         setEmailErr('')
         setNameErr('')
         setPassErr('')
+
+        const auth = await fetch('/api/user/profile/authenticate', {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                oldPass,
+            }),
+        }).then((res) => res.json())
+
+        if (
+            auth.err !== null &&
+            auth.err.toLowerCase().includes('invalid password')
+        ) {
+            setPassErr('Invalid password')
+            return
+        }
+
+        let bannerImgUrl: string | null = null
+        let imgUrl: string | null = null
+
+        if (bannerImgFile !== null) {
+            bannerImgUrl = await addBanner(bannerImgFile, session.user.id)
+        }
+        if (imgFile !== null) imgUrl = await addPfp(imgFile, session.user.id)
 
         const { err } = await fetch('/api/user/profile/update', {
             headers: {
@@ -69,8 +104,9 @@ function EditProfileModal({ handleClose, isOpened, session }: props) {
             body: JSON.stringify({
                 name,
                 email,
-                oldPass,
                 newPass,
+                bannerImgUrl,
+                imgUrl,
             }),
         }).then((res) => res.json())
 
@@ -79,6 +115,11 @@ function EditProfileModal({ handleClose, isOpened, session }: props) {
                 user: {
                     name,
                     email,
+                    bannerImg:
+                        bannerImgUrl !== null
+                            ? bannerImgUrl
+                            : session.user.bannerImg,
+                    image: imgUrl !== null ? imgUrl : session.user.image,
                 },
             })
 
@@ -94,10 +135,6 @@ function EditProfileModal({ handleClose, isOpened, session }: props) {
         if (err.toLowerCase().includes('user_email_key')) {
             setEmailErr('Email already exists.')
         }
-
-        if (err.toLowerCase().includes('invalid password')) {
-            setPassErr('Invalid password')
-        }
     }
 
     function validateEmail(email: string) {
@@ -108,6 +145,32 @@ function EditProfileModal({ handleClose, isOpened, session }: props) {
         }
         setEmailErr('')
         return true
+    }
+
+    const handleImgChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files
+
+        if (file && file.length > 0) {
+            if (file[0].size >= 4 * 1024 * 1024) {
+                alert('File is too large 4MB max.')
+                return
+            }
+            setImgFile(file[0])
+            setImg(URL.createObjectURL(file[0]))
+        }
+    }
+
+    const handleBannerChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files
+
+        if (file && file.length > 0) {
+            if (file[0].size >= 4 * 1024 * 1024) {
+                alert('File is too large 4MB max.')
+                return
+            }
+            setBannerImgFile(file[0])
+            setBannerImg(URL.createObjectURL(file[0]))
+        }
     }
 
     return (
@@ -134,126 +197,81 @@ function EditProfileModal({ handleClose, isOpened, session }: props) {
                         Save
                     </button>
                 </div>
-                <div className='w-full h-[200px] relative'>
-                    {session?.user.bannerImg &&
-                        session.user.bannerImg.length > 0 && (
-                            <Image
-                                src={session.user.bannerImg}
-                                alt={session.user.name!}
-                                className='w-full h-[200px]'
-                                width='0'
-                                height={200}
-                                sizes='100%'
-                            />
-                        )}
-                    {addImgBtn()}
-                </div>
-                <div className='relative w-fit'>
-                    {addImgBtn()}
-                    <Image
-                        src={session?.user.image || defaultPfp}
-                        alt={session?.user.name!}
-                        className='opacity-75'
-                        width='120'
-                        height='120'
+                <div className='w-full h-[200px] relative my-2'>
+                    {((session?.user.bannerImg &&
+                        session.user.bannerImg.length > 0) ||
+                        bannerImg) && (
+                        <Image
+                            src={bannerImg || session?.user.bannerImg!}
+                            alt={session?.user.name!}
+                            className='w-full h-[200px] object-fill'
+                            width='0'
+                            height={200}
+                            sizes='100%'
+                        />
+                    )}
+                    <AddImgBtn
+                        handleChange={handleBannerChange}
+                        id='bannerImg'
                     />
                 </div>
+                <div className='relative w-fit'>
+                    <Image
+                        src={img || session?.user.image || defaultPfp}
+                        alt={session?.user.name!}
+                        className='opacity-75 w-[120px] h-[120px] rounded-full object-cover'
+                        width='120'
+                        height='120'
+                        sizes='100%'
+                    />
+                    <AddImgBtn handleChange={handleImgChange} id='img' />
+                </div>
                 <div className='py-3 flex flex-col gap-5'>
-                    {inputField(
-                        'text',
-                        'Name',
-                        name!,
-                        setName,
-                        `${nameErr.length !== 0 && 'focus:border-[#f4212e]'}`
-                    )}
-                    <p
-                        className={`text-[#f4212e] text-sm ${
-                            nameErr.length === 0 && 'hidden'
-                        } `}
-                    >
-                        {nameErr}
-                    </p>
+                    <InputField
+                        type={'text'}
+                        placeholder={'name'}
+                        value={name!}
+                        setVal={setName}
+                        classNames={`${
+                            nameErr.length !== 0 && 'focus:border-[#f4212e]'
+                        }`}
+                        err={nameErr}
+                    />
 
-                    {inputField(
-                        'email',
-                        'Email',
-                        email!,
-                        setEmail,
-                        `${emailErr.length !== 0 && 'focus:border-[#f4212e]'}`
-                    )}
-                    <p
-                        className={`text-[#f4212e] text-sm ${
-                            emailErr.length === 0 && 'hidden'
-                        } `}
-                    >
-                        {emailErr}
-                    </p>
+                    <InputField
+                        type={'email'}
+                        placeholder={'Email'}
+                        value={email!}
+                        setVal={setEmail}
+                        classNames={`${
+                            emailErr.length !== 0 && 'focus:border-[#f4212e]'
+                        }`}
+                        err={emailErr}
+                    />
 
-                    {inputField(
-                        'password',
-                        'Old Password',
-                        oldPass,
-                        setOldPass,
-                        `${passErr.length !== 0 && 'focus:border-[#f4212e]'}`
-                    )}
-                    <p
-                        className={`text-[#f4212e] text-sm ${
-                            passErr.length === 0 && 'hidden'
-                        } `}
-                    >
-                        {passErr}
-                    </p>
+                    <InputField
+                        type={'password'}
+                        placeholder={'Old Password'}
+                        value={oldPass}
+                        setVal={setOldPass}
+                        classNames={`${
+                            passErr.length !== 0 && 'focus:border-[#f4212e]'
+                        }`}
+                        err={passErr}
+                    />
 
-                    {inputField(
-                        'password',
-                        'New Password',
-                        newPass!,
-                        setNewPass,
-                        '',
-                        false
-                    )}
+                    <InputField
+                        type={'password'}
+                        placeholder={'New Password'}
+                        value={newPass!}
+                        setVal={setNewPass}
+                        classNames={''}
+                        required={false}
+                    />
                 </div>
             </form>
         </dialog>
     )
-
-    function addImgBtn() {
-        return (
-            <label
-                htmlFor='bannerImg'
-                className='absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-[#080b0d] rounded-full w-[45px] h-[45px] cursor-pointer hover:bg-add-img-hover z-20'
-            >
-                <Image
-                    src={'/add-img.svg'}
-                    alt={'Add Image'}
-                    className='absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2'
-                    width='24'
-                    height={24}
-                />
-                <input type='file' id='bannerImg' className='hidden' />
-            </label>
-        )
-    }
-
-    function inputField(
-        type: string,
-        placeholder: string,
-        value: string,
-        setVal: any,
-        classNames: string = '',
-        required: boolean = true
-    ) {
-        return (
-            <input
-                type={type}
-                placeholder={placeholder}
-                value={value}
-                onChange={(e) => setVal(e.target.value)}
-                className={`${classNames} focus:outline-none bg-transparent focus:border-[#1d9bf0] border border-[#333639] rounded py-4 px-2 w-full`}
-                required={required}
-            />
-        )
-    }
 }
 
 export default EditProfileModal

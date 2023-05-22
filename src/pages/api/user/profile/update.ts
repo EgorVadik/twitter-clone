@@ -1,7 +1,7 @@
 import { getServerAuthSession } from '@/server/auth'
 import { prisma } from '@/server/db'
 import { NextApiRequest, NextApiResponse } from 'next'
-import { compare, hash } from 'bcrypt'
+import { hash } from 'bcrypt'
 
 export default async function handler(
     req: NextApiRequest,
@@ -11,7 +11,8 @@ export default async function handler(
 
     switch (method) {
         case 'PUT':
-            const { name, email, oldPass, newPass } = req.body
+            const { name, email, newPass, bannerImgUrl, imgUrl } = req.body
+
             const session = await getServerAuthSession({ req, res })
             if (!session) return res.status(403).json({ err: 'Unauthorized' })
             try {
@@ -24,25 +25,25 @@ export default async function handler(
                     },
                 })
 
-                if (!(await compare(oldPass, user?.hash!)))
-                    return res.status(200).json({ err: 'Invalid Password' })
-
-                // if (newPass === null || newPass.trim().length === 0) {
-                const newUser = await prisma.user.update({
+                await prisma.user.update({
                     where: {
                         id: session.user.id,
                     },
                     data: {
-                        email,
-                        name,
+                        email: email as string,
+                        name: name as string,
                         hash:
-                            newPass === null || newPass.trim().length === 0
+                            newPass === null ||
+                            (newPass as string).trim().length === 0
                                 ? user?.hash
-                                : await hash(newPass, 10),
+                                : await hash(newPass as string, 10),
+                        bannerImg:
+                            bannerImgUrl !== null
+                                ? bannerImgUrl
+                                : session.user.bannerImg,
+                        image: imgUrl !== null ? imgUrl : session.user.image,
                     },
                 })
-                console.log(newUser)
-                // }
 
                 return res.status(200).json({ err: null })
             } catch (error: any) {

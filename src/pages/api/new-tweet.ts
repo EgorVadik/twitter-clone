@@ -17,15 +17,18 @@ export default async function handler(
             if (!session) return res.status(403).json({ err: 'Unauthorized' })
 
             try {
-                await prisma.tweet.create({
+                const { id } = await prisma.tweet.create({
                     data: {
                         content: content as string,
                         img: '',
                         userId: session.user.id,
                     },
+                    select: {
+                        id: true,
+                    },
                 })
 
-                return res.status(200).json({ err: null })
+                return res.status(200).json({ err: null, id })
             } catch (error) {
                 return res.status(400).json({ err: error })
             }
